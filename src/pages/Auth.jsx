@@ -48,6 +48,12 @@ const Auth = ({ insideRegister, insideHospital, onSetUserData }) => {
         if (result.status === 200) {
           alert("Registration Successful! Please log in.");
           navigate("/login");
+          setUserData({name: "",
+            age: "",
+            phone: "",
+            blood: "",
+            email: "",
+            password: ""})
         } else {
           alert(result.data || "Registration failed");
         }
