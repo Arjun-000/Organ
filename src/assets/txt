@@ -1,0 +1,178 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Col, Row } from "react-bootstrap";
+import { getUserAPI } from "../services/allAPi";
+
+const User = () => {
+  const [user, setUser] = useState(null); // Changed to object instead of array
+  const [donations, setDonations] = useState([]);
+  const [request, setRequest] = useState([]);
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  console.log("User:", user);
+  console.log("Donations:", donations);
+  console.log("Requests:", request);
+  console.log("Session Storage User:", sessionStorage.getItem("users"));
+
+  const fetchUserData = async () => {
+    const token = sessionStorage.getItem("token");
+    const users = JSON.parse(sessionStorage.getItem("users") || "{}"); // Get user data
+    console.log("Users from sessionStorage:", users);
+    
+    const id = users?._id || users?.id;
+    console.log("Extracted User ID:", id);
+
+    if (!id) {
+      console.error("User ID is missing!");
+      return;
+    }
+
+    const reqHeader = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    try {
+      const result = await getUserAPI(id, reqHeader);
+      console.log("API Response:", result.data);
+
+      if (result.status === 200) {
+        setUser(result.data.user); // Fixed: Access 'user' instead of 'users'
+        setDonations(result.data.donations || []);
+        setRequest(result.data.requests || []);
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  const handleEdit = (id, type) => {
+    console.log(`Edit ${type}:`, id);
+  };
+
+  const handleDelete = async (id, type) => {
+    if (window.confirm("Are you sure you want to delete this entry?")) {
+      try {
+        // Add delete logic here
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  return (
+    <div style={{ marginTop: "80px", padding: "20px" }} className="container">
+      <div className="container mt-4 shadow bg-light">
+        <h2 className="text-center mb-4 pt-3">Personal Information</h2>
+        <div className="p-5 rounded mx-auto w-75">
+          <dl className="row">
+            {user ? (
+              <>
+                <dt className="col-sm-5 fw-bold fs-5">Username:</dt>
+                <dd className="col-sm-7 pb-2 fs-5">{user?.name || "N/A"}</dd>
+
+                <dt className="col-sm-5 fw-bold fs-5">Email:</dt>
+                <dd className="col-sm-7 pb-2 fs-5">{user?.email || "N/A"}</dd>
+
+                <dt className="col-sm-5 fw-bold fs-5">Phone:</dt>
+                <dd className="col-sm-7 pb-2 fs-5">{user?.phone || "N/A"}</dd>
+
+                <dt className="col-sm-5 fw-bold fs-5">Blood:</dt>
+                <dd className="col-sm-7 pb-2 fs-5">{user?.blood || "N/A"}</dd>
+
+                <dt className="col-sm-5 fw-bold fs-5">Age:</dt>
+                <dd className="col-sm-7 pb-2 fs-5">{user?.age || "N/A"}</dd>
+                <div className="col-sm-8"></div>
+                <button className="btn btn-danger col-sm-4">Edit</button>
+              </>
+            ) : (
+              <dt className="col-sm-8">No user data available.</dt>
+            )}
+          </dl>
+        </div>
+      </div>
+
+      <Row className="gap-5 p-3">
+        <Col>
+          <h2>Your Donations</h2>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Organ</th>
+                <th>Status</th>
+                <th>Edit</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {donations.length > 0 ? (
+                donations.map((donation, index) => (
+                  <tr key={index}>
+                    <td>{donation.organ}</td>
+                    <td>{donation.status || "Pending"}</td>
+                    <td>
+                      <button className="btn btn-danger" onClick={() => handleEdit(donation._id, "donation")}>
+                        Edit
+                      </button>
+                    </td>
+                    <td>
+                      <button className="btn btn-primary" onClick={() => handleDelete(donation._id, "donation")}>
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4">No donations found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </Col>
+
+        <Col>
+          <h2>Your Requests</h2>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Organ</th>
+                <th>Status</th>
+                <th>Edit</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {request.length > 0 ? (
+                request.map((req, index) => (
+                  <tr key={index}>
+                    <td>{req.organ}</td>
+                    <td>{req.status}</td>
+                    <td>
+                      <button className="btn btn-danger" onClick={() => handleEdit(req._id, "request")}>
+                        Edit
+                      </button>
+                    </td>
+                    <td>
+                      <button className="btn btn-primary" onClick={() => handleDelete(req._id, "request")}>
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4">No requests found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </Col>
+      </Row>
+    </div>
+  );
+};
+
+export default User;
