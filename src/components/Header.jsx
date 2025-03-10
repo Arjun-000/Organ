@@ -22,7 +22,7 @@ const Header = () => {
       <div className="container-fluid">
         <Navbar.Brand>
           <Link to="/" className="fw-bolder text-decoration-none text-white" onClick={() => setExpanded(false)}>
-            <i className="fa-solid fa-hand-holding-heart me-2 text-white"></i> ARJ Organ Donation
+            <i className="fa-solid fa-hand-holding-heart me-2 text-white"></i> ARJ Organs
           </Link>
         </Navbar.Brand>
 
