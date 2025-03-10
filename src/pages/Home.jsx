@@ -347,11 +347,7 @@ const Home = () => {
                 </Carousel>
               </Col>
             </Row>
-            <Row>
-              <Col>
-                  <p>Lives saved</p>
-              </Col>
-            </Row>
+            
           </>
         )
         }
